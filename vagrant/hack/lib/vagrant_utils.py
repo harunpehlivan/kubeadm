@@ -38,11 +38,7 @@ def import_kubeadm_binary(binary, builder, prefix):
     else:
         source_kubeadm_binary = os.path.join(kubernetes_utils.build_output_path(builder), 'kubeadm')
 
-    if prefix is None:
-        prefix = ''
-    else:
-        prefix = prefix + '_'
-
+    prefix = '' if prefix is None else prefix + '_'
     vagrant_kubeadm_binary = os.path.join(bin_folder, "%skubeadm" % (prefix))
 
     if not os.path.exists(bin_folder):
@@ -82,9 +78,7 @@ def import_packages(packages):
             pass
         elif file_extension == ".deb" and filename in ['kubeadm', 'kubectl', 'kubelet',  'kubernetes-cni']: # if supported deb files
             pass
-        elif file_extension == ".tar" and not filename.endswith("-internal-layer"): # if tar file - excluding internal layers
-            pass
-        else:
+        elif file_extension != ".tar" or filename.endswith("-internal-layer"):
             continue # ignore the file
 
         s = os.path.join(packages, f)

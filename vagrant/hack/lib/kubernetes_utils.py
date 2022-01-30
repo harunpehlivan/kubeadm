@@ -21,13 +21,13 @@ import re
 RFC1123_LABEL_PATTERN = "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
 
 def validate_rfc123_label(arg):
-    if re.match(RFC1123_LABEL_PATTERN, arg) == None:
+    if re.match(RFC1123_LABEL_PATTERN, arg) is None:
         raise ValueError("invalid RFC1123 label '%s'" % (arg)) 
 
 RFC1123_SUBDOMAIN_PATTERN = "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
 
 def validate_rfc123_subdomain(arg):
-    if re.match(RFC1123_SUBDOMAIN_PATTERN, arg) == None:
+    if re.match(RFC1123_SUBDOMAIN_PATTERN, arg) is None:
         raise ValueError("invalid RFC1123 subdomain '%s'" % (arg)) 
 
 KUBERNETES_BAZEL_BUILD  = 'bazel'     

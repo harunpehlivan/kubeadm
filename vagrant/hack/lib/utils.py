@@ -26,7 +26,7 @@ def validate_integer(arg):
 CIDR_PATTERN = "^(?=\d+\.\d+\.\d+\.\d+($|\/))(([1-9]?\d|1\d\d|2[0-4]\d|25[0-5])\.?){4}(\/([0-9]|[1-2][0-9]|3[0-2]))?$"
 
 def validate_cidr(arg):
-    if re.match(CIDR_PATTERN, arg) == None:
+    if re.match(CIDR_PATTERN, arg) is None:
         raise ValueError("invalid CIDR '%s'" % (arg)) 
 
 def validate_cidrs(*args):

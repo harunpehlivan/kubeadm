@@ -29,8 +29,6 @@ def print_help(cluster, machines, topic):
         print_help_external_ca(hi)
     elif topic == 'external-vip':
         print_help_external_vip(hi)
-    elif topic == 'external-ca':
-        print_help_external_ca(hi)
     elif topic == 'kubeadm-init':
         print_help_kubeadm_init(hi)
     elif topic == 'kubectl-apply-network':

@@ -98,10 +98,10 @@ def parse(folder):
                 raise RuntimeError('Error parsing cluster API specification in `' + repr(f) + '`: ' + repr(e))
 
     # fails fast if incomplete configurations are detected
-    if cluster == None: 
+    if cluster is None: 
         raise ValueError("Invalid cluster API specification in %s. Cluster object not defined" % (spec))
-    
-    if len(machineSets) == 0: 
+
+    if not machineSets: 
         raise ValueError("Invalid cluster API specification in %s. MachineSets objects not defined" % (spec))
 
     return cluster, machineSets
@@ -164,11 +164,11 @@ def getx(data, keys, default=None, validator=None):
         try:
             data = data[key]
         except KeyError:
-            if default != None:
-                return default
-            else:
+            if default is None:
                 raise KeyError("invalid cluster API definition. Key '%s' does not exist" % (keys)) 
-    
+
+            else:
+                return default
     if validator != None:
         validator(data)
 
@@ -181,7 +181,7 @@ def get_machines(cluster, machineSets):
     machines = []
     j = 1
     for s in machineSets:
-        for i in range(1, s.replicas + 1):
+        for _ in range(1, s.replicas + 1):
             m = VagrantMachine()
             m.name              = "%s-%s" % (cluster.name, s.name) if s.replicas == 1 else "%s-%s%s" % (cluster.name, s.name, j)
             m.hostname          = "%s-%s.local" % (cluster.name, m.name)
@@ -194,24 +194,23 @@ def get_machines(cluster, machineSets):
             j += 1
 
     masters = [m for m in machines if ROLE_MASTER in m.roles]
-    if len(masters) == 0:
+    if not masters:
         raise ValueError("Invalid cluster definition. At least one Master machine is required")
     elif len(masters) > 1:
         cluster.highavailability = True
-        if sum([1 for m in machines if ROLE_ETCD in m.roles])==0:
+        if sum(ROLE_ETCD in m.roles for m in machines) == 0:
             raise ValueError("Invalid cluster definition. Multi masters requires external etcd.")
         if cluster.pkiLocation == kubeadm_utils.CERTIFICATEAUTHORITY_LOCATION_SECRETS:
             raise ValueError("Invalid cluster definition. Multi masters does not support certificates in secrets yet.")
 
-    etcds = [m for m in machines if ROLE_ETCD in m.roles]
-    if len(etcds) > 0:
+    if etcds := [m for m in machines if ROLE_ETCD in m.roles]:
         cluster.externalEtcd = True
 
     if not os.path.exists(vagrant_utils.tmp_folder):
         os.makedirs(vagrant_utils.tmp_folder)
 
     machines_target = os.path.join(vagrant_utils.tmp_folder, 'machines.yml')
-    
+
     with open(machines_target, 'w') as outfile:
         yaml.dump(machines, outfile, default_flow_style=False)
 

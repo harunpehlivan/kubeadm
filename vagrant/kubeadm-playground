@@ -108,7 +108,7 @@ def validate_args(cluster, machines, command, *args):
         if ARG_META_PLAYBOOK_ALL in args:
             args = default + [ARG_PLAYBOOK_RUN_KUBEADM_INIT, ARG_PLAYBOOK_RUN_KUBECTL_APPLY_NETWORK]
 
-            if len([m for m in machines if cluster_api.ROLE_NODE in m.roles]) > 0:
+            if [m for m in machines if cluster_api.ROLE_NODE in m.roles]:
                 args += [ARG_PLAYBOOK_RUN_KUBEADM_JOIN]
 
         # if the meta arg NONE is specified, it should not be used in combination with other args
@@ -151,12 +151,10 @@ def validate_args(cluster, machines, command, *args):
         if len(args) != 1:
             raise ValueError("command '%s' requires one arg. Valid args are [%s]" % (command, ', '.join(valid)))
 
+    elif not args:
+        return args
     else:
-        # other commands doesn't support arg specification
-        if not args:
-            return args
-        else:
-            raise ValueError("command '%s' does support additional args" % (command))
+        raise ValueError("command '%s' does support additional args" % (command))
 
     for arg in args:
         if arg not in valid:
@@ -263,13 +261,9 @@ def do_start(fallbackMode):
     utils.print_H1('Checking machine status')
     node_state = vagrant_utils.get_status()
 
-    start_vms = False
-    for node, state in node_state.items():
-        if state != 'running':
-            start_vms = True
-            break
-
-    if start_vms:
+    if start_vms := any(
+        state != 'running' for node, state in node_state.items()
+    ):
         utils.print_H1('Starting machines')
 
         if fallbackMode:
@@ -332,13 +326,9 @@ def do_stop():
     utils.print_H1('Checking machine status')
     node_state = vagrant_utils.get_status()
 
-    stop_vms = False
-    for node, state in node_state.items():
-        if state == 'running':
-            stop_vms = True
-            break
-
-    if stop_vms:
+    if stop_vms := any(
+        state == 'running' for node, state in node_state.items()
+    ):
         utils.print_H1('Stopping machines')
         vagrant_utils.exec_halt()
     else:
@@ -359,13 +349,9 @@ def do_delete():
     utils.print_H1('Checking machine status')
     node_state = vagrant_utils.get_status()
 
-    delete_vms = False
-    for node, state in node_state.items():
-        if state != 'not created':
-            delete_vms = True
-            break
-
-    if delete_vms:
+    if delete_vms := any(
+        state != 'not created' for node, state in node_state.items()
+    ):
         utils.print_H1('Deleting machines')
         vagrant_utils.exec_destroy()
     else:

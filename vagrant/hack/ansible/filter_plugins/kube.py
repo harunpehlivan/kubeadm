@@ -24,8 +24,7 @@ def _compare_by_keys( version, other):
     d2 = parse(other)
 
     for key in ['major', 'minor', 'patch']:
-        v = (d1.get(key) > d2.get(key)) - (d1.get(key) < d2.get(key))
-        if v:
+        if v := (d1.get(key) > d2.get(key)) - (d1.get(key) < d2.get(key)):
             return v
 
     rc1, rc2 = d1.get('prerelease'), d2.get('prerelease')
